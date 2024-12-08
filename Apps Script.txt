@@ -1,0 +1,59 @@
+var ss = SpreadsheetApp.openById('1M_yvsus9ldS8b68u2k2W0RfvMakJ-Izm08MzfveVUzA'); // Enter your Google Sheets URL Id here
+var sheet = ss.getSheetByName('Sheet1');
+var timezone = "Africa/Harare"; // Set your timezone
+
+
+function doGet(e){
+ try {
+   Logger.log(JSON.stringify(e));
+
+
+   if (!e.parameter || !e.parameters.name || !e.parameters.surname) {
+     return ContentService.createTextOutput("Invalid request: Missing parameters");
+   }
+
+
+   var Curr_Date = new Date();
+   var Curr_Time = Utilities.formatDate(Curr_Date, timezone, 'HH:mm:ss');
+   var name = stripQuotes(e.parameters.name);
+   var surname = stripQuotes(e.parameters.surname);
+
+
+   if (!name || !surname) {
+     return ContentService.createTextOutput("Invalid request: Name or Surname parameter is empty");
+   }
+
+
+   var nextRow = sheet.getLastRow() + 1;
+   sheet.getRange("A" + nextRow).setValue(Curr_Date);
+   sheet.getRange("B" + nextRow).setValue(Curr_Time);
+   sheet.getRange("C" + nextRow).setValue(name);
+   sheet.getRange("D" + nextRow).setValue(surname); // Add surname to column D
+
+
+   return ContentService.createTextOutput("Name and surname are stored in columns C and D");
+ } catch (error) {
+   Logger.log("Error: " + error.message);
+   return ContentService.createTextOutput("An error occurred: " + error.message);
+ }
+}
+
+
+function stripQuotes(value) {
+ return value.toString().replace(/^["']|['"]$/g, "");
+}
+
+
+function doPost(e) {
+ try {
+   var val = e.parameter.value;
+
+
+   if (val !== undefined) {
+     var range = sheet.getRange('A2');
+     range.setValue(val);
+   }
+ } catch (error) {
+   Logger.log("Error: " + error.message);
+ }
+}
